@@ -1,0 +1,22 @@
+[color]
+    ui = true
+
+[diff]
+    tool = vimdiff
+
+[alias]
+    co = checkout
+    ci = commit
+    st = status
+    br = branch
+    sh = stash
+    pop = stash pop
+    hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+    type = cat-file -t
+    dump = cat-file -p
+
+[user]
+    name = jamesmcnamara
+    email = jamesscottmcnamara@gmail.com
+[merge]
+	tool = vimdiff
