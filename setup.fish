@@ -1,6 +1,17 @@
 #!/usr/bin/env fish
 
-mkdir .vim 
+function letsgo
+    git submodule init
+    git submodule update
+end
+
+letsgo
+cd dot-vim
+git checkout vundle
+letsgo
+
+..
+ln -s $PWD/dot-vim $HOME/.vim 
 ln -s $PWD/dot-vim/.vimrc $HOME/.vimrc
 
 mkdir -p ~/.config/fish
