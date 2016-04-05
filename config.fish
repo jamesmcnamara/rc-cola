@@ -1,12 +1,18 @@
 eval (python -m virtualfish);
-vf activate base;
+if -e $HOME/.virtualenvs/base
+    vf activate base;
+end
 alias pd=pushd;
 alias pp=popd;
 
-set -x PATH "/Users/jamesmcnamara/.cargo/bin" $PATH
+if -e /Users/jamesmcnamara/.cargo/bin
+    set -x PATH "/Users/jamesmcnamara/.cargo/bin" $PATH
+end
 
 function pym
     python -c "print($argv[1])"
 end
 
-fish_vi_mode
+if type fish_vi_mode > /dev/null
+    fish_vi_mode
+end
