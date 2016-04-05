@@ -1,11 +1,11 @@
 eval (python -m virtualfish);
-if -e $HOME/.virtualenvs/base
+if test -e $HOME/.virtualenvs/base
     vf activate base;
 end
 alias pd=pushd;
 alias pp=popd;
 
-if -e /Users/jamesmcnamara/.cargo/bin
+if test -e /Users/jamesmcnamara/.cargo/bin
     set -x PATH "/Users/jamesmcnamara/.cargo/bin" $PATH
 end
 
