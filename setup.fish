@@ -18,3 +18,5 @@ mkdir -p ~/.config/fish
 ln -s $PWD/config.fish $HOME/.config/fish/
 
 ln -s $PWD/gitconfig $HOME/.gitconfig
+
+vim +PluginInstall +qall
