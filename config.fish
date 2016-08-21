@@ -1,13 +1,16 @@
-eval (python -m virtualfish);
+eval (python3 -m virtualfish);
 if test -e $HOME/.virtualenvs/base
     vf activate base;
 end
 alias pd=pushd;
 alias pp=popd;
+alias vim=/usr/bin/vim
+alias git=hub
 
 if test -e /Users/jamesmcnamara/.cargo/bin
     set -x PATH "/Users/jamesmcnamara/.cargo/bin" $PATH
 end
+set -x LSCOLORS ExFxCxDxBxegedabagacad
 
 function pym
     python -c "print($argv[1])"
