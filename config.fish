@@ -4,6 +4,7 @@ if test -e $HOME/.virtualenvs/base
 end
 alias pd=pushd;
 alias pp=popd;
+alias grepr='grep -d recurse';
 
 if test -e /Users/jamesmcnamara/.cargo/bin
     set -x PATH "/Users/jamesmcnamara/.cargo/bin" $PATH
