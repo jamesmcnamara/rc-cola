@@ -5,6 +5,9 @@ end
 alias pd=pushd;
 alias pp=popd;
 alias grepr='grep -d recurse';
+alias pbcopy='xclip -selection clipboard'
+alias pbpaste='xclip -selection clipboard -o'
+
 
 if test -e /Users/jamesmcnamara/.cargo/bin
     set -x PATH "/Users/jamesmcnamara/.cargo/bin" $PATH
