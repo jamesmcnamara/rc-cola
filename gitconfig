@@ -17,6 +17,7 @@
 
 [user]
     name = jamesmcnamara
-    email = jamesscottmcnamara@gmail.com
+	email = jamesscottmcnamara@gmail.com
+	username = jamesmcnamara
 [merge]
-	tool = vimdiff
+    tool = vimdiff

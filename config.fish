@@ -1,4 +1,4 @@
-eval (python -m virtualfish);
+eval (python3 -m virtualfish);
 if test -e $HOME/.virtualenvs/base
     vf activate base;
 end
