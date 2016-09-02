@@ -72,3 +72,7 @@ function fish_title
 end
 
 start_agent
+
+if type cowsay > /dev/null and type fortune > /dev/null
+    fortune | cowsay
+end

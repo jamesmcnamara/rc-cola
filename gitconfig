@@ -14,10 +14,10 @@
     hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
     type = cat-file -t
     dump = cat-file -p
-
+    po = push origin
 [user]
     name = jamesmcnamara
-	email = jamesscottmcnamara@gmail.com
-	username = jamesmcnamara
+    email = jamesscottmcnamara@gmail.com
+    username = jamesmcnamara
 [merge]
     tool = vimdiff
