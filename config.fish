@@ -4,9 +4,10 @@ if test -e $HOME/.virtualenvs/base
 end
 alias pd=pushd;
 alias pp=popd;
-alias grepr='grep -d recurse';
+alias grepr='grep -ind recurse';
 alias pbcopy='xclip -selection clipboard'
 alias pbpaste='xclip -selection clipboard -o'
+alias radd='~/workspace/sandbox/python/radd/compiled/main.py'
 
 
 if test -e /Users/jamesmcnamara/.cargo/bin
@@ -76,3 +77,10 @@ start_agent
 if type cowsay > /dev/null and type fortune > /dev/null
     fortune | cowsay
 end
+
+# OPAM configuration
+source /home/james/.opam/opam-init/init.fish > /dev/null 2> /dev/null or true
+set -x PYTHONSTARTUP $HOME./pysession/pysession.py
+set -x PYSESSION_SAVE_OFF True
+
+ssh-add ~/.ssh/sk/*
