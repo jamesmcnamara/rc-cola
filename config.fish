@@ -4,8 +4,20 @@ if test -e $HOME/.virtualenvs/base
 end
 alias pd=pushd;
 alias pp=popd;
-alias vim=/usr/bin/vim
 alias git=hub
+alias grepr='grep -ind recurse';
+alias radd='~/workspace/sandbox/python/radd/compiled/main.py'
+
+switch (uname)
+    case Darwin
+        alias vim='mvim -v'
+    case Linux
+        alias pbcopy='xclip -selection clipboard'
+        alias pbpaste='xclip -selection clipboard -o'
+end
+
+
+
 
 if test -e /Users/jamesmcnamara/.cargo/bin
     set -x PATH "/Users/jamesmcnamara/.cargo/bin" $PATH
@@ -71,3 +83,9 @@ function fish_title
 end
 
 start_agent
+
+if type cowsay > /dev/null and type fortune > /dev/null
+    fortune | cowsay
+end
+
+ssh-add ~/.ssh/sk/* 2> /dev/null 
