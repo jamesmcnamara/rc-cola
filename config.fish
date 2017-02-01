@@ -84,8 +84,6 @@ end
 
 start_agent
 
-if type cowsay > /dev/null and type fortune > /dev/null
-    fortune | cowsay
+if test -e ~/.ssh/sk 
+    ssh-add ~/.ssh/sk/* 2> /dev/null 
 end
-
-ssh-add ~/.ssh/sk/* 2> /dev/null 

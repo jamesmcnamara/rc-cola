@@ -7,7 +7,6 @@ end
 
 letsgo
 cd dot-vim
-git checkout vundle
 letsgo
 
 ..
