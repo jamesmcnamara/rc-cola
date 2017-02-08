@@ -7,15 +7,17 @@ alias pp=popd;
 alias git=hub
 alias grepr='grep -ind recurse';
 alias radd='~/workspace/sandbox/python/radd/compiled/main.py'
+alias git="/usr/local/bin/hub"
 
 switch (uname)
     case Darwin
-        alias vim='mvim -v'
+        set -x EDITOR 'mvim -v'
+        alias vim=$EDITOR
     case Linux
+        set -x EDITOR vim
         alias pbcopy='xclip -selection clipboard'
         alias pbpaste='xclip -selection clipboard -o'
 end
-
 
 
 
