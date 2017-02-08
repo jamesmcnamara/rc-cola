@@ -15,6 +15,7 @@ switch (uname)
         alias vim=$EDITOR
     case Linux
         set -x EDITOR vim
+        set -x BROWSER google-chrome-stable
         alias pbcopy='xclip -selection clipboard'
         alias pbpaste='xclip -selection clipboard -o'
 end
