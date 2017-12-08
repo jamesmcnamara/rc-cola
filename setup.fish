@@ -27,5 +27,6 @@ mkdir -p ~/.config/fish
 ln -s $PWD/config.fish $HOME/.config/fish/
 
 ln -s $PWD/gitconfig(getext) $HOME/.gitconfig
+ln -s $PWD/fish-functions $HOME/.config/fish/functions
 
 vim +PluginInstall +qall

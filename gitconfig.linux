@@ -19,6 +19,7 @@
     dump = cat-file -p
     po = push origin
     get = pull origin
+
 [user]
     name = jamesmcnamara
     email = jamesscottmcnamara@gmail.com
@@ -26,3 +27,5 @@
 
 [merge]
     tool = vimdiff
+[push]
+    default = matching
