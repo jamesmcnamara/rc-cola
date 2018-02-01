@@ -90,3 +90,6 @@ start_agent
 if test -e ~/.ssh/sk 
     ssh-add ~/.ssh/sk/* 2> /dev/null 
 end
+
+# OPAM configuration
+source /home/james/.opam/opam-init/init.fish > /dev/null 2> /dev/null or true
