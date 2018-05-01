@@ -20,10 +20,11 @@ cd dot-vim
 letsgo
 
 ..
+mkdir -p $HOME/.config/fish $HOME/.config/nvim/
 ln -s $PWD/dot-vim $HOME/.vim 
 ln -s $PWD/dot-vim/.vimrc $HOME/.vimrc
+ln -s $PWD/dot-vim/.vimrc $HOME/.config/nvim/init.vim
 
-mkdir -p ~/.config/fish
 ln -s $PWD/config.fish $HOME/.config/fish/
 
 ln -s $PWD/gitconfig(getext) $HOME/.gitconfig

@@ -22,8 +22,8 @@ end
 
 
 
-if test -e /Users/jamesmcnamara/.cargo/bin
-    set -x PATH "/Users/jamesmcnamara/.cargo/bin" $PATH
+if test -e $HOME/.cargo/bin
+    set -x PATH "$HOME/.cargo/bin" $PATH
 end
 set -x LSCOLORS ExFxCxDxBxegedabagacad
 
@@ -31,8 +31,8 @@ function pym
     python -c "print($argv[1])"
 end
 
-if type fish_vi_mode > /dev/null
-    fish_vi_mode
+if type fish_vi_key_bindings > /dev/null
+    fish_vi_key_bindings
 end
 #this script can never fail
 #i use it in the fish_config
@@ -90,3 +90,6 @@ start_agent
 if test -e ~/.ssh/sk 
     ssh-add ~/.ssh/sk/* 2> /dev/null 
 end
+
+# OPAM configuration
+source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null or true
