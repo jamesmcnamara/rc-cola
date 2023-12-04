@@ -1,100 +1,230 @@
-function brigand_nvm_fish_find_matching_version --description 'Finds the version matching the semver string'
-	set -l brigand_nvm_fish_path ~/.nvm/versions/node
-	set -l target $argv[1]
-	set -l best_match 0 0 0
-	set -l raw_target_parts (echo $target | tr '.' '\n')
+function nvm --description "Node version manager"
+    for silent in --silent -s
+        if set --local index (contains --index -- $silent $argv)
+            set --erase argv[$index] && break
+        end
+        set --erase silent
+    end
 
-	# pad target_parts to three items with 0s
-	set -l target_parts $raw_target_parts
-	while test (count $target_parts) -lt 3
-		set target_parts $target_parts 0
-	end
+    set --local cmd $argv[1]
+    set --local ver $argv[2]
 
-	for version_directory in $brigand_nvm_fish_path/v*
-		set -l source_version (echo "$version_directory" | sed 's/.*v//')
-		set -l source_parts (echo $source_version | tr '.' '\n')
+    if set --query silent && ! set --query cmd[1]
+        echo "nvm: Version number not specified (see nvm -h for usage)" >&2
+        return 1
+    end
 
-		# Rules out any versions less than the requested version
-		set -l fail
-		for i in (seq 1 3)
-			set -l source_part $source_parts[$i]
-			set -l target_part $target_parts[$i]
+    if ! set --query ver[1] && contains -- "$cmd" install use
+        for file in .nvmrc .node-version
+            set file (_nvm_find_up $PWD $file) && read ver <$file && break
+        end
 
-			# skip the checks if the target digit isn't specified
-			if test (count $raw_target_parts) -lt $i
-				break
-			end
+        if ! set --query ver[1]
+            echo "nvm: Invalid version or missing \".nvmrc\" file" >&2
+            return 1
+        end
+    end
 
-			# if they're equal, it's a match
-			if test $target_part -eq $source_part
-				continue
-			end
+    set --local their_version $ver
 
-			# if we're asking for a newer version the check failed
-			if test $target_part -gt $source_part
-				set fail true
-				break
-			end
+    switch "$cmd"
+        case -v --version
+            echo "nvm, version 2.2.11"
+        case "" -h --help
+            echo "Usage: nvm install <version>    Download and activate the specified Node version"
+            echo "       nvm install              Install version from nearest .nvmrc file"
+            echo "       nvm use <version>        Activate a version in the current shell"
+            echo "       nvm use                  Activate version from nearest .nvmrc file"
+            echo "       nvm list                 List installed versions"
+            echo "       nvm list-remote          List versions available to install"
+            echo "       nvm list-remote <regex>  List versions matching a given regular expression"
+            echo "       nvm current              Print the currently-active version"
+            echo "       nvm uninstall <version>  Uninstall a version"
+            echo "Options:"
+            echo "       -s or --silent           Suppress standard output"
+            echo "       -v or --version          Print version"
+            echo "       -h or --help             Print this help message"
+            echo "Variables:"
+            echo "       nvm_arch                 Override architecture, e.g. x64-musl"
+            echo "       nvm_mirror               Use a mirror of the Node binaries"
+            echo "       nvm_default_version      Set the default version for new shells"
+            echo "       nvm_default_packages     Install a list of packages every time you install a Node version"
+        case install
+            _nvm_index_update
 
-			if test $target_part -lt $source_part
-				set fail true
-				break
-			end
-		end
+            string match --entire --regex -- (_nvm_version_match $ver) <$nvm_data/.index | read ver alias
 
-		if not test -z $fail;
-			continue
-		end
+            if ! set --query ver[1]
+                echo "nvm: Invalid version number or alias: \"$their_version\"" >&2
+                return 1
+            end
 
-		if not test $source_parts[1] -lt $best_match[1]
-			if not test $source_parts[2] -lt $best_match[2]
-				if not test $source_parts[3] -lt $best_match[3]
-					set best_match $source_parts
-				end
-			end
-		end
-	end
+            if test ! -e $nvm_data/$ver
+                set --local os (command uname -s | string lower)
+                set --local ext tar.gz
+                set --local arch (command uname -m)
 
-	set best_match_string $best_match[1].$best_match[2].$best_match[3]
-	if not test $best_match_string = '0.0.0'
-		echo $best_match_string
-	end
+                switch $os
+                    case aix
+                        set arch ppc64
+                    case sunos
+                    case linux
+                    case darwin
+                    case {MSYS_NT,MINGW\*_NT}\*
+                        set os win
+                        set ext zip
+                    case \*
+                        echo "nvm: Unsupported operating system: \"$os\"" >&2
+                        return 1
+                end
+
+                switch $arch
+                    case i\*86
+                        set arch x86
+                    case x86_64
+                        set arch x64
+                    case arm64
+                        string match --regex --quiet "v(?<major>\d+)" $ver
+                        if test "$os" = darwin -a $major -lt 16
+                            set arch x64
+                        end
+                    case armv6 armv6l
+                        set arch armv6l
+                    case armv7 armv7l
+                        set arch armv7l
+                    case armv8 armv8l aarch64
+                        set arch arm64
+                end
+
+                set --query nvm_arch && set arch $nvm_arch
+
+                set --local dir "node-$ver-$os-$arch"
+                set --local url $nvm_mirror/$ver/$dir.$ext
+
+                command mkdir -p $nvm_data/$ver
+
+                if ! set --query silent
+                    echo -e "Installing Node \x1b[1m$ver\x1b[22m $alias"
+                    echo -e "Fetching \x1b[4m$url\x1b[24m\x1b[7m"
+                end
+
+                if ! command curl $silent --progress-bar --location $url |
+                        command tar --extract --gzip --directory $nvm_data/$ver 2>/dev/null
+                    command rm -rf $nvm_data/$ver
+                    echo -e "\033[F\33[2K\x1b[0mnvm: Invalid mirror or host unavailable: \"$url\"" >&2
+                    return 1
+                end
+
+                set --query silent || echo -en "\033[F\33[2K\x1b[0m"
+
+                if test "$os" = win
+                    command mv $nvm_data/$ver/$dir $nvm_data/$ver/bin
+                else
+                    command mv $nvm_data/$ver/$dir/* $nvm_data/$ver
+                    command rm -rf $nvm_data/$ver/$dir
+                end
+            end
+
+            if test $ver != "$nvm_current_version"
+                set --query nvm_current_version && _nvm_version_deactivate $nvm_current_version
+                _nvm_version_activate $ver
+
+                set --query nvm_default_packages[1] && npm install --global $silent $nvm_default_packages
+            end
+
+            set --query silent || printf "Now using Node %s (npm %s) %s\n" (_nvm_node_info)
+        case use
+            test $ver = default && set ver $nvm_default_version
+            _nvm_list | string match --entire --regex -- (_nvm_version_match $ver) | read ver __
+
+            if ! set --query ver[1]
+                echo "nvm: Can't use Node \"$their_version\", version must be installed first" >&2
+                return 1
+            end
+
+            if test $ver != "$nvm_current_version"
+                set --query nvm_current_version && _nvm_version_deactivate $nvm_current_version
+                test $ver != system && _nvm_version_activate $ver
+            end
+
+            set --query silent || printf "Now using Node %s (npm %s) %s\n" (_nvm_node_info)
+        case uninstall
+            if test -z "$ver"
+                echo "nvm: Not enough arguments for command: \"$cmd\"" >&2
+                return 1
+            end
+
+            test $ver = default && test ! -z "$nvm_default_version" && set ver $nvm_default_version
+
+            _nvm_list | string match --entire --regex -- (_nvm_version_match $ver) | read ver __
+
+            if ! set -q ver[1]
+                echo "nvm: Node version not installed or invalid: \"$their_version\"" >&2
+                return 1
+            end
+
+            set --query silent || printf "Uninstalling Node %s %s\n" $ver (string replace ~ \~ "$nvm_data/$ver/bin/node")
+
+            _nvm_version_deactivate $ver
+
+            command rm -rf $nvm_data/$ver
+        case current
+            _nvm_current
+        case ls list
+            _nvm_list | _nvm_list_format (_nvm_current) $argv[2]
+        case lsr {ls,list}-remote
+            _nvm_index_update || return
+            _nvm_list | command awk '
+                FILENAME == "-" && (is_local[$1] = FNR == NR) { next } {
+                    print $0 (is_local[$1] ? " ✓" : "")
+                }
+            ' - $nvm_data/.index | _nvm_list_format (_nvm_current) $argv[2]
+        case \*
+            echo "nvm: Unknown command or option: \"$cmd\" (see nvm -h for usage)" >&2
+            return 1
+    end
 end
 
-function nvm-fast
-	set -l brigand_nvm_fish_path ~/.nvm/versions/node
-	if test (count $argv[1]) -lt 1
-		echo 'nvm-fast: at least one argument is required'
-	end
-
-	set -l command $argv[1]
-
-	if test $command = 'use'
-		set -l target_version $argv[2]
-		set -l matched_version (brigand_nvm_fish_find_matching_version $target_version)
-
-		if test -z $matched_version
-			echo "No version installed for $target_version, run nvm install $target_version"
-			echo "Installed versions: "
-			for file in $brigand_nvm_fish_path/v*
-				echo ' -' $file
-			end
-		else
-			set -l new_path
-			for path_segment in $fish_user_paths
-				if not echo "$path_segment" | grep -q "$brigand_nvm_fish_path"
-					set new_path $new_path "$path_segment"
-				end
-			end
-			set new_path $brigand_nvm_fish_path/v$matched_version/bin $new_path
-			set fish_user_paths $new_path
-		end
-	else
-		bash -c "source ~/.nvm/nvm.sh; nvm $argv"
-	end
+function _nvm_find_up --argument-names path file
+    test -e "$path/$file" && echo $path/$file || begin
+        test ! -z "$path" || return
+        _nvm_find_up (string replace --regex -- '/[^/]*$' "" $path) $file
+    end
 end
 
-function nvm
-	nvm-fast $argv
+function _nvm_version_match --argument-names ver
+    string replace --regex -- '^v?(\d+|\d+\.\d+)$' 'v$1.' $ver |
+        string replace --filter --regex -- '^v?(\d+)' 'v$1' |
+        string escape --style=regex ||
+        string lower '\b'$ver'(?:/\w+)?$'
 end
 
+function _nvm_list_format --argument-names current regex
+    command awk -v current="$current" -v regex="$regex" '
+        $0 ~ regex {
+            aliases[versions[i++] = $1] = $2 " " $3
+            pad = (n = length($1)) > pad ? n : pad
+        }
+        END {
+            if (!i) exit 1
+            while (i--)
+                printf((current == versions[i] ? " ▶ " : "   ") "%"pad"s %s\n",
+                    versions[i], aliases[versions[i]])
+        }
+    '
+end
+
+function _nvm_current
+    command --search --quiet node || return
+    set --query nvm_current_version && echo $nvm_current_version || echo system
+end
+
+function _nvm_node_info
+    set --local npm_path (string replace bin/npm-cli.js "" (realpath (command --search npm)))
+    test -f $npm_path/package.json || set --local npm_version_default (command npm --version)
+    command node --eval "
+        console.log(process.version)
+        console.log('$npm_version_default' ? '$npm_version_default': require('$npm_path/package.json').version)
+        console.log(process.execPath.replace(require('os').homedir(), '~'))
+    "
+end

@@ -1,14 +1,15 @@
 [core]
-    editor = "/usr/local/bin/mvim -v"
+    editor = vim
     
 [color]
     ui = true
 
 [diff]
-    tool = mvimdiff
+    tool = vimdiff
 
 [alias]
     co = checkout
+    cos = checkout --recurse-submodule
     ci = commit
     st = status
     br = branch
@@ -17,8 +18,9 @@
     hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
     type = cat-file -t
     dump = cat-file -p
-    po = push origin
+    po = push origin -u
     get = pull origin
+
 [user]
     name = jamesmcnamara
     email = jamesscottmcnamara@gmail.com
@@ -26,5 +28,27 @@
 
 [merge]
     tool = vimdiff
-[difftool "mvimdiff"]
-    cmd = /usr/local/bin/mvimdiff -v $LOCAL $REMOTE
+
+[push]
+    default = current
+
+[pull]
+    rebase = false
+
+[branch]	
+    autoSetupMerge = always
+
+[filesystem "Oracle Corporation|1.8.0_181|/dev/sdb"]
+    timestampResolution = 1001 milliseconds
+    minRacyThreshold = 0 nanoseconds
+[mergetool]	
+    keepBackup = false
+[credential]
+    helper = store --file /home/james/.ssh/sk/github
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+[advice]
+	addIgnoredFile = false
